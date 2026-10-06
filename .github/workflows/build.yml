@@ -3,7 +3,7 @@ name: Build Android APK
 on:
   push:
     branches: [ "main" ]
-  workflow_dispatch: # Allows manual trigger from mobile browser
+  workflow_dispatch:
 
 jobs:
   build:
@@ -20,11 +20,13 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
-    - name: Setup Android SDK
-      uses: android-actions/setup-android@v3
-
-    - name: Grant Execute Permission for Gradlew
-      run: chmod +x gradlew || true
+    - name: Generate Gradle Wrapper if missing
+      run: |
+        if [ ! -f "gradlew" ]; then
+          echo "Generating Gradle wrapper..."
+          gradle wrapper --gradle-version 8.4
+        fi
+        chmod +x gradlew
 
     - name: Build APK with Gradle
       run: ./gradlew assembleDebug --stacktrace
