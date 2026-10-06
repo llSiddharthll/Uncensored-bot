@@ -20,16 +20,21 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
+    - name: Force AndroidX in Gradle Properties
+      run: |
+        echo "android.useAndroidX=true" > gradle.properties
+        echo "android.nonTransitiveRClass=true" >> gradle.properties
+        echo "org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8" >> gradle.properties
+
     - name: Generate Gradle Wrapper if missing
       run: |
         if [ ! -f "gradlew" ]; then
-          echo "Generating Gradle wrapper..."
           gradle wrapper --gradle-version 8.4
         fi
         chmod +x gradlew
 
     - name: Build APK with Gradle
-      run: ./gradlew assembleDebug --stacktrace
+      run: ./gradlew assembleDebug -Pandroid.useAndroidX=true --stacktrace
 
     - name: Upload APK to Artifacts
       uses: actions/upload-artifact@v4
